@@ -14,14 +14,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configurer les clés devkitPro
-        run: |
-          doption() { echo "$1"; }
-          curl -LO https://pkg.devkitpro.org/devkitpro-keyring.pkg.tar.xz
-          dkm-pacman -U --noconfirm devkitpro-keyring.pkg.tar.xz || dkp-pacman -U --noconfirm devkitpro-keyring.pkg.tar.xz || pacman -U --noconfirm devkitpro-keyring.pkg.tar.xz
-
       - name: Installer les outils 3DS
         run: |
+          dgp-install || true
+          dkp-pacman -Sy --noconfirm devkitpro-keyring
           dkp-pacman -Syu --noconfirm 3ds-dev
 
       - name: Compiler le projet
