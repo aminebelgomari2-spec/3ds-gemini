@@ -13,12 +13,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Installer devkitPro pacman
-        uses: devkitPro/actions/install@v2
-
-      - name: Installer les dépendances 3DS
+      - name: Installer les dépendances et devkitPro
         run: |
-          dkp-pacman -Syu --noconfirm 3ds-dev
+          sudo apt-get update
+          sudo apt-get install -y wget bzip2 make
+          
+          # Téléchargement et installation de devkitPro pacman
+          wget https://apt.devkitpro.org/devkitpro-pacman.pkg
+          sudo dkp-pacman -U --noconfirm devkitpro-pacman.pkg || true
 
       - name: Compiler le projet
         run: |
