@@ -1,0 +1,93 @@
+name: Build CIA + QR code
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  MAKEROM_REF: d52c2b0e788c2d085763d7c5dcc4b2edd9ffb7d8
+  BANNERTOOL_REF: 734d33be79fd3f8c29c6296158f06ac7c5ca9dcb
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitarm:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer libctru / citro2d / citro3d
+        run: |
+          if command -v dkp-pacman >/dev/null 2>&1; then PM=dkp-pacman; else PM=pacman; fi
+          $PM -Syu --noconfirm 3ds-dev
+
+      - name: Injecter la clé API (optionnel, secret GEMINI_API_KEY)
+        env:
+          KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ -n "$KEY" ]; then
+            sed -i "s|COLLE_TA_CLE_ICI|$KEY|" source/config.h
+          fi
+
+      - name: Compiler
+        run: |
+          export DEVKITPRO=/opt/devkitpro DEVKITARM=/opt/devkitpro/devkitARM
+          make
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: |
+            GeminiChat.elf
+            GeminiChat.3dsx
+          if-no-files-found: error
+
+  package:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+
+      - name: Compiler makerom
+        run: |
+          git clone https://github.com/3DSGuy/Project_CTR.git ctr
+          git -C ctr checkout "$MAKEROM_REF"
+          make -C ctr/makerom deps all -j4
+          echo "MAKEROM=$PWD/ctr/makerom/bin/makerom" >> "$GITHUB_ENV"
+
+      - name: Compiler bannertool
+        run: |
+          git clone https://github.com/carstene1ns/3ds-bannertool.git bt
+          git -C bt checkout "$BANNERTOOL_REF"
+          cmake -S bt -B bt/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build bt/build -j4
+          echo "BANNERTOOL=$PWD/bt/build/bannertool" >> "$GITHUB_ENV"
+
+      - name: Créer le .cia
+        run: bash tools/make_cia.sh GeminiChat.elf GeminiChat.cia
+
+      - name: Générer le QR code (pour FBI)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qrencode
+          URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/latest/GeminiChat.cia"
+          qrencode -l L -s 12 -m 4 -o qrcode.png "$URL"
+
+      - name: Publier la release "latest"
+        run: |
+          gh release delete latest --cleanup-tag --yes --repo "$GITHUB_REPOSITORY" || true
+          gh release create latest \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Gemini Chat (dernière version)" \
+            --notes "FBI > Remote Install > Scan QR Code, puis scanne qrcode.png" \
+            GeminiChat.cia GeminiChat.3dsx qrcode.png
