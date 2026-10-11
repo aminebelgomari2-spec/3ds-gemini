@@ -8,21 +8,26 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: devkitpro/devkitarm:latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Compiler avec le chemin absolu
+      - name: Installer devkitPro pacman
+        uses: devkitPro/actions/install@v2
+
+      - name: Installer les dépendances 3DS
         run: |
-          /opt/devkitpro/devkitA64/bin/arm-none-eabi-gcc -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft -O2 -I/opt/devkitpro/libctru/include main.c -L/opt/devkitpro/libctru/lib -lctru -lm -o main.elf
-          /opt/devkitpro/tools/bin/3dsxtool main.elf 3ds-gemini.3dsx
+          dkp-pacman -Syu --noconfirm 3ds-dev
+
+      - name: Compiler le projet
+        run: |
+          make
 
       - name: Sauvegarder les artéfacts
         uses: actions/upload-artifact@v4
         with:
-          name: 3DS-Gemini-CIA
+          name: 3DS-Gemini-Files
           path: |
-            3ds-gemini.3dsx
-            main.elf
+            *.3dsx
+            *.cia
