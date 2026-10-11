@@ -14,19 +14,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Update pacman keyrings
+      - name: Configurer les clés devkitPro
         run: |
-          dkp-pacman -Sy --noconfirm devkitpro-keyring
+          doption() { echo "$1"; }
+          curl -LO https://pkg.devkitpro.org/devkitpro-keyring.pkg.tar.xz
+          dkm-pacman -U --noconfirm devkitpro-keyring.pkg.tar.xz || dkp-pacman -U --noconfirm devkitpro-keyring.pkg.tar.xz || pacman -U --noconfirm devkitpro-keyring.pkg.tar.xz
 
-      - name: Install 3DS dependencies
+      - name: Installer les outils 3DS
         run: |
           dkp-pacman -Syu --noconfirm 3ds-dev
 
-      - name: Build CIA and 3DSX
+      - name: Compiler le projet
         run: |
           make
 
-      - name: Upload CIA artifact
+      - name: Sauvegarder les artéfacts
         uses: actions/upload-artifact@v4
         with:
           name: 3DS-Gemini-CIA
