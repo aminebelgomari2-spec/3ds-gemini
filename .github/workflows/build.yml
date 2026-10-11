@@ -8,7 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: devkitpro/devkitarm:latest
+    container:
+      image: devkitpro/devkitarm:latest
 
     steps:
       - name: Checkout repository
@@ -16,6 +17,9 @@ jobs:
 
       - name: Compiler avec make
         run: |
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITARM=/opt/devkitpro/devkitARM
+          export PATH=$PATH:$DEVKITARM/bin
           make
 
       - name: Sauvegarder les artéfacts
