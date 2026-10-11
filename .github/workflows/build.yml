@@ -14,24 +14,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Compiler directement main.c
+      - name: Compiler avec arm-none-eabi-gcc
         run: |
-          # Compilation directe avec les outils arm-none-eabi
           arm-none-eabi-gcc -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft -O2 -I/opt/devkitpro/libctru/include main.c -L/opt/devkitpro/libctru/lib -lctru -lm -o main.elf
-          
-          # Transformation en 3dsx et cia si les outils de post-traitement sont présents
-          if command -v 3dsxtool &> /dev/null; then
-            3dsxtool main.elf 3ds-gemini.3dsx
-          fi
-          if command -v bannertool &> /dev/null && command -v makerom &> /dev/null; then
-            makerom -f cia -o 3ds-gemini.cia -exefslogo -icon icon.png -banner banner.png -rsf 3ds.rsf -target t -code main.elf || true
-          fi
+          3dsxtool main.elf 3ds-gemini.3dsx
 
       - name: Sauvegarder les artéfacts
         uses: actions/upload-artifact@v4
         with:
           name: 3DS-Gemini-CIA
           path: |
-            *.cia
-            *.3dsx
-            *.elf
+            3ds-gemini.3dsx
+            main.elf
