@@ -14,10 +14,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Compiler avec arm-none-eabi-gcc
+      - name: Compiler avec le chemin absolu
         run: |
-          arm-none-eabi-gcc -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft -O2 -I/opt/devkitpro/libctru/include main.c -L/opt/devkitpro/libctru/lib -lctru -lm -o main.elf
-          3dsxtool main.elf 3ds-gemini.3dsx
+          /opt/devkitpro/devkitA64/bin/arm-none-eabi-gcc -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft -O2 -I/opt/devkitpro/libctru/include main.c -L/opt/devkitpro/libctru/lib -lctru -lm -o main.elf
+          /opt/devkitpro/tools/bin/3dsxtool main.elf 3ds-gemini.3dsx
 
       - name: Sauvegarder les artéfacts
         uses: actions/upload-artifact@v4
