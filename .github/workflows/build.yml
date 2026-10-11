@@ -14,13 +14,16 @@ jobs:
       - name: Récupérer le code
         uses: actions/checkout@v4
 
-      - name: Compiler
+      - name: Configurer les chemins et compiler
         run: |
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITARM=/opt/devkitpro/devkitARM
+          export PATH=$DEVKITARM/bin:$PATH
           make
 
       - name: Sauvegarder le fichier .3dsx
         uses: actions/upload-artifact@v4
         with:
-          name: 3ds-gemini-file
+          name: 3ds-gemini-artifact
           path: |
             *.3dsx
