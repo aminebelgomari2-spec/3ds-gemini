@@ -14,11 +14,8 @@ jobs:
       - name: Récupérer le code
         uses: actions/checkout@v4
 
-      - name: Configurer les chemins et compiler
+      - name: Compiler
         run: |
-          export DEVKITPRO=/opt/devkitpro
-          export DEVKITARM=/opt/devkitpro/devkitARM
-          export PATH=$DEVKITARM/bin:$PATH
           make
 
       - name: Sauvegarder le fichier .3dsx
