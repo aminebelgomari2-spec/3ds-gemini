@@ -496,7 +496,9 @@ static void netThread(void *arg)
     g_httpStatus = 0;
     g_netErr[0] = 0;
 
-    Result rc = httpcOpenContext(&ctx, HTTPC_METHOD_POST, API_URL, 1);
+    char url[512];
+    snprintf(url, sizeof url, "%s?key=%s", API_URL, g_apiKey); /* clé aussi dans l'URL (méthode documentée) */
+    Result rc = httpcOpenContext(&ctx, HTTPC_METHOD_POST, url, 1);
     if (R_FAILED(rc)) {
         snprintf(g_netErr, sizeof g_netErr, "Connexion impossible (code 0x%08lX). Wi-Fi active ?", (unsigned long)rc);
         goto done;
@@ -625,12 +627,14 @@ static void finishRequest(void)
         const char *hint = "";
         if (g_httpStatus == 404)      hint = " Modèle introuvable : change GEMINI_MODEL dans config.h.";
         else if (g_httpStatus == 429) hint = " Quota dépassé, réessaie plus tard.";
-        else if (g_httpStatus == 400 || g_httpStatus == 401 || g_httpStatus == 403)
-                                      hint = " Vérifie ta clé API.";
+        bool keyProblem = (g_httpStatus == 401 || g_httpStatus == 403 ||
+                           (g_httpStatus == 400 && em.p && strstr(em.p, "API key")));
+        if (keyProblem) hint = " Clé API refusée : appuie sur A pour la ressaisir.";
         snprintf(msg, sizeof msg, "Erreur HTTP %lu.%s %.150s", (unsigned long)g_httpStatus, hint,
                  em.p ? em.p : "");
         addMsg(ROLE_ERROR, msg);
         markLastUserFailed();
+        if (keyProblem) g_needKey = true; /* le bouton A redemande la clé */
         free(em.p);
     }
     free(g_resp);
