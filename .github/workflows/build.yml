@@ -16,6 +16,9 @@ jobs:
 
       - name: Compiler
         run: |
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITARM=/opt/devkitpro/devkitARM
+          export PATH=$DEVKITARM/bin:$PATH
           make
 
       - name: Sauvegarder le fichier .3dsx
