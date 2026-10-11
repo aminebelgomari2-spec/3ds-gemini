@@ -1,5 +1,8 @@
+PREFIX      := arm-none-eabi-
+CC          := $(PREFIX)gcc
+STRIP       := $(PREFIX)strip
+
 TARGET      := 3ds-gemini
-BUILD       := build
 SOURCES     := .
 INCLUDES    := include
 
