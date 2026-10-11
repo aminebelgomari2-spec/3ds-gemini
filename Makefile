@@ -1,6 +1,5 @@
 PREFIX      := arm-none-eabi-
 CC          := $(PREFIX)gcc
-STRIP       := $(PREFIX)strip
 
 TARGET      := 3ds-gemini
 SOURCES     := .
@@ -8,7 +7,7 @@ INCLUDES    := include
 
 ARCH        := -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 CFLAGS      := -g -Wall -O2 -mword-relocations $(ARCH) -I/opt/devkitpro/libctru/include
-LDFLAGS     := -g $(ARCH) -L/opt/devkitpro/libctru/lib -lctru -lm
+LDFLAGS     := -g $(ARCH) -specs=3ds.specs -L/opt/devkitpro/libctru/lib -lctru -lm
 
 CFILES      := $(wildcard *.c)
 OBJS        := $(CFILES:.c=.o)
