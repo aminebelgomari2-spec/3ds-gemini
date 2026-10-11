@@ -8,17 +8,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: devkitpro/devkitarm:latest
+    container: devkitpro/pacs:latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Installer les outils 3DS
-        run: |
-          dgp-install || true
-          dkp-pacman -Sy --noconfirm devkitpro-keyring
-          dkp-pacman -Syu --noconfirm 3ds-dev
 
       - name: Compiler le projet
         run: |
