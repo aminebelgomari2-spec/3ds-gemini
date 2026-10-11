@@ -1,7 +1,5 @@
-FEAURED_3DSX := $(BUILD).3dsx
-
 ifeq ($(strip $(DEVKITPRO)),)
-$(error "S'il vous plait, definissez DEVKITPRO dans votre environnement")
+export DEVKITPRO := /opt/devkitpro
 endif
 
 include $(DEVKITPRO)/3ds_rules
