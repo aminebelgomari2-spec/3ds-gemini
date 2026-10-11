@@ -8,24 +8,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: devkitpro/devkitarm:latest
+    container: devkitpro/devkitarm:latest
 
     steps:
-      - name: Checkout repository
+      - name: Récupérer le code
         uses: actions/checkout@v4
 
-      - name: Compiler avec make
+      - name: Compiler
         run: |
-          export DEVKITPRO=/opt/devkitpro
-          export DEVKITARM=/opt/devkitpro/devkitARM
-          export PATH=$PATH:$DEVKITARM/bin
           make
 
-      - name: Sauvegarder les artéfacts
+      - name: Sauvegarder le fichier .3dsx
         uses: actions/upload-artifact@v4
         with:
-          name: 3ds-gemini-artifact
+          name: 3ds-gemini-file
           path: |
             *.3dsx
-            *.cia
