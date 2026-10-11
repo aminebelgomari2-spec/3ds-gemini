@@ -8,12 +8,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: devkitpro/pacs:latest
+    container: 
+      image: ubuntu:latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Installer les dépendances système
+        run: |
+          apt-get update && apt-get install -y curl wget make libarchive-tools
+
+      - name: Installer l'environnement devkitPro
+        run: |
+          curl -LO https://apt.devkitpro.org/devkitpro-pacman.pkg
+          # Extraction et configuration minimale pour compiler
+          
       - name: Compiler le projet
         run: |
           make
