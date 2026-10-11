@@ -1,0 +1,31 @@
+name: Build 3DS App
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitarm:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install 3DS dependencies
+        run: |
+          dkp-pacman -Sy --noconfirm 3ds-dev
+
+      - name: Build CIA and 3DSX
+        run: |
+          make
+
+      - name: Upload CIA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3DS-Gemini-CIA
+          path: |
+            *.cia
+            *.3dsx
