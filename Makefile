@@ -1,16 +1,24 @@
-ifeq ($(strip $(DEVKITPRO)),)
-export DEVKITPRO := /opt/devkitpro
-endif
-
-export DEVKITARM := $(DEVKITPRO)/devkitARM
-export PATH := $(DEVKITARM)/bin:$(PATH)
-
 TARGET      := 3ds-gemini
-BUILD       := build
 SOURCES     := .
 INCLUDES    := include
 
-# Utilisation des règles officielles de devkitPro
-include $(DEVKITPRO)/3ds_rules
+ARCH        := -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
+CFLAGS      := -g -Wall -O2 -mword-relocations $(ARCH) -I/opt/devkitpro/libctru/include
+LDFLAGS     := -g $(ARCH) -L/opt/devkitpro/libctru/lib -lctru -lm
 
-LIBS        := -lctru -lm
+CFILES      := $(wildcard *.c)
+OBJS        := $(CFILES:.c=.o)
+
+all: $(TARGET).3dsx
+
+$(TARGET).3dsx: $(TARGET).elf
+	3dsxtool $< $@
+
+$(TARGET).elf: $(OBJS)
+	arm-none-eabi-gcc $^ $(LDFLAGS) -o $@
+
+%.o: %.c
+	arm-none-eabi-gcc $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OBJS) $(TARGET).elf $(TARGET).3dsx
