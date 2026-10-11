@@ -14,9 +14,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Update pacman keyrings
+        run: |
+          dkp-pacman -Sy --noconfirm devkitpro-keyring
+
       - name: Install 3DS dependencies
         run: |
-          dkp-pacman -Sy --noconfirm 3ds-dev
+          dkp-pacman -Syu --noconfirm 3ds-dev
 
       - name: Build CIA and 3DSX
         run: |
